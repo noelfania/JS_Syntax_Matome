@@ -1,0 +1,128 @@
+// RegExp 객체를 이용하는 방법
+const regex = new RegExp(pattern, flag);
+
+// 객체초기화 방법
+const regex = /pattern?/flag;
+
++) flag
+
+g(global) (매칭될 수 있는 다수의 결과값을 기억)
+m(multiline) (행이 바뀌어도 찾기)
+case insensitive (대소문자 구분X)
+
+2. group & range
+| (또는) : /Hi | Hello/gm
+() (그룹 지정) : /(Hi | Hello) | (And)/gm
+(?:) (그룹 미지정, 찾지만 기억하지는 않음) : /gr(?:a|e)y/gm
+=> /gr(a|e)y/gm : gr로 시작하고 중간에 a 또는 e, 마지막은 y로 끝나는 문자열 (gray / grey)
+
+[] (괄호 안의 어떤 문자든 찾아라) : /gr[ae]y/gm /gr[a-f]y/gm /[a-zA-Z0-9]/gm
+[^] (괄호 안의 어떤 문자든 제외하고 찾아라) : /[^a-z]/gm
+
+const log = ',A=1111        ,[B=       ],CD=1111        ,[E=       ],F=1111        ,[GHL=       ],E=[size=dfdf ]'
+
+const rtn = {}
+log.split(',').reduce(function(acc,ele,i,a){
+    var matchGroups = ele.match(/(?<key>\w+)=(?<val>[\w\s]+)(?:,)?(?:\])?/)?.groups
+    if(matchGroups) {
+        var {key,val} = matchGroups
+        acc[key] = val;
+    }
+    return acc
+},rtn)
+
+
+
+
+3. 수량
+? (없거나 있거나) : /gra?y/gm a가 있거나 없거나 (gray / gry)
+* (없거나 있거나 많거나) : /gra*y/gm (gry / gray / graay / graaay)
++ (하나 또는 많이) : /gra+y/gm (gray / graay / graaay)
+{n} (n번 반복) : /gra{2}y/gm
+{n,} (최소 n번 이상) : /gra{2,}y/gm
+{n, m} (최소 n번 이상, m번 이하) : /gra{2,3}y/gm
+
+4. 단어 경계
+\b (단어 경계) : /\bHa/gm (Ha / Harry / Hamster), /Ha\b/gm (Ha / HaHaHa)
+\B (단어 경계가 아님) : /Ha\B/gm (HaHaHa)
+^ (문장의 시작) : /^Ha/gm (HaHaHa)
+$ (문장의 끝) : /Ha$/gm (HaHaHa)
+
+5. 문법정리
+. (줄바꿈 문자를 제외한 모든 문자) : /./gm
+\ (특수문자가 아닌 문자) : /\[\]/gm ([])
+\d (숫자)
+\D (숫자를 제외한 모든 것)
+\w (모든 문자열 : 알파벳, 숫자, _)
+\W (문자를 제외한 모든 것)
+\s (띄어쓰기)
+\S (띄어쓰기를 제외한 모든 것)
+
+// regex로 전화번호 찾기
+/\d{2,3}[-. ]\d{3}[-. ]\d{4}/gm
+
+// regex로 이메일 찾기
+/[a-zA-Z0-9._-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+/gm
+
+// regex로 아이디만 가져오기
+/([a-zA-Z0-9-]{11})/gm
+  
+// regex 활용
+const regex = /([a-zA-Z0-9-]{11})/gm
+const url = 'https://www.youtu.be/-ZClicWm0zM'
+url.match(regex)  // [매칭되는 전체 문자열, 매칭되는 그룹]
+const result = url.match(regex)
+result[1]  // 찾고자 하는 유튜브 아이디
+
+
+
+# 정규표현식 활용 샘플 코드
+1. 웹사이트 주소 정규표현식
+: http:// 나 https://로 시작하고, 알파벳, 어더스코어(_), 하이픈(-), dot(.)으로 이루어져 있습니다.
+const text = `대나무 빨대 구입 문의 : http://dogumaster.com http://google.com 010-1111-2222 02-333-7777 curryyou@aaa.com`;
+
+text.match(/https?:\/\/[\w\-\.]+/g);
+// ["http://dogumaster.com", "http://google.com"]
+여기서 사용된 정규표현식을 해석해보겠습니다.
+/https?:\/\/[\w\-\.]+/g 
+1) http => 로 시작하고,
+2) s? => 다음에 s는 없거나 있고,
+3) : => 다음에 : 가 오고,
+4) \/\/ => 다음에 특수기호 // 가 오고
+5) [\w\-\.]+ => \w(영문자, 언더스코어), 하이픈, 쩜 으로 이루어진 문자열이 한개 이상(+) 있다.
+6) g => 매칭되는걸 모두 다 찾는다.(플래그)
+ 
+ 
+2.  전화번호 정규표현식
+: 유선번호라면 02-111-2222 형식이고, 핸드폰번호라면 010-1111-2222 형식입니다. 숫자의 갯수가 다릅니다.
+const text = `대나무 빨대 구입 문의 : http://dogumaster.com http://google.com 010-1111-2222 02-333-7777 curryyou@aaa.com`;
+
+text.match(/\d{2,3}-\d{3,4}-\d{4}/g);
+// [ '010-1111-2222', '02-333-7777' ]
+/\d{2,3}-\d{3,4}-\d{4}/g
+1) \d{2,3} => 숫자 2~3개로 시작하고,
+2) \- => 다음에 하이픈(-)이 오고
+3) \d{3, 4} => 다음에 숫자가 3~4개 오고,
+4)  \- => 다음에 하이픈(-)이 오고,
+5) \d{4} => 다음에 숫자가 4개 온다.
+6) g => 매칭되는걸 모두 다 찾는다(플래그)
+ 
+ 
+3. 이메일주소 정규표현식
+: xxx@xxxx.com 등의 형식이니, 쉽게 만들 수 있겠죠?
+const text = `대나무 빨대 구입 문의 : http://dogumaster.com http://google.com 010-1111-2222 02-333-7777 curryyou@aaa.com`;
+
+text.match(/[\w\-\.]+\@[\w\-\.]+/g); // [ 'curryyou@aaa.com' ]
+
+좀더 엄격한 검사가 필요하다면, 상황에 맞게 수정해서 사용하시면 되겠습니다.
+ 
+ 
+4. 특수기호 정규표현식
+1) 모든 특수기호를 나열
+: 빼먹을수도 있는 단점이 있지만, 원하는 특수기호만 선택해서 검사할 수 있는 장점이 있습니다.
+const regex = /\[\]\{\}\/\(\)\.\?\<\>!@#$%^&*/g
+ 
+2) 문자와 숫자가 아닌것을 매칭
+: [^문자]  패턴으로 Not 기능을 적용했습니다.
+const regex = /[^a-zA-Z0-9가-힣ㄱ-ㅎ]/g
+출처: https://curryyou.tistory.com/234 [카레유:티스토리]
